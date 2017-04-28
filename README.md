@@ -1,2 +1,2 @@
 # Scala-Project
-csc375 Final Project
+csc372 Final Project
