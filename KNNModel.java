@@ -18,13 +18,21 @@ public class KNNModel {
 		this.groupTwo = groupTwo;
 	}
 	
+	/* public ArrayList<KNNData> classify (ArrayList<KNNData> testData)
+	 * 		testData - an ArrayList containing KNNData objects that represent testing
+	 *				   points to be classified.
+	 *
+	 * Given a set of data points to be classified, this will return the same set of
+	 * testing points with their classNum set to the group number that they most closely
+	 * associate with (according to the rules delineated by kNN)
+	 */
 	public ArrayList<KNNData> classify (ArrayList<KNNData> testData) {
-		// For each test point, calculate the distance between it and all group data points.
-		// Store the (distance,group_data_point) pairs in an arraylist (there are only three test points,
-		// so only three lists will be made).
-		// Use the three nearest points (i.e. the three smallest distance values) and their classNum
-		// value to determine which group the point belongs to.
-		
+		/* For each test point, calculate the distance between it and all group data points.
+		 * Store the (distance,group_data_point) pairs in an arraylist (there are only three test points,
+		 * so only three lists will be made).
+		 * Use the three nearest points (i.e. the three smallest distance values) and their classNum
+		 * value to determine which group the point belongs to.
+		 */
 		ArrayList<ArrayList<Pair<Double,KNNData>>> allTestPoints = new ArrayList();
 		// For each test point...
 		for (KNNData testPoint : testData) {
@@ -61,8 +69,12 @@ public class KNNModel {
 		return sortedTests;
 	}
 	
-	/*
-	 * Returns a list of the test points with their group number (third value) set accordingly
+	/* public ArrayList<KNNData> extractResults(sortedList, testData)
+	 * 		sortedList - an ArrayList of an ArrayList of Pair objects. Each Pair has their first 
+	 					 value set to the distance between a test point and the second value, which
+	 					 is a KNNData object representing a training point. 
+
+	 * Returns a list of the test points with their group number (third value) set accordingly.
 	 */
 	public ArrayList<KNNData> extractResults(ArrayList<ArrayList<Pair<Double,KNNData>>> sortedList, ArrayList<KNNData> testData) {
 		ArrayList<KNNData> sortedTests = new ArrayList<KNNData>();
@@ -75,9 +87,11 @@ public class KNNModel {
 		return sortedTests;
 	}
 	
-	/*
+	/* private int majorityGroup(sortedPairList)
+			sortedPairList - an ArrayList of Pair objects.
+
 	 * Returns an int that represents the group number to give a test point after
-	 * considering the data.
+	 * determining which of the k neighbors is the majority of the nearest neighbors.
 	 */
 	private int majorityGroup (ArrayList<Pair<Double,KNNData>> sortedPairList) {
 		int k = 0; int g1 = 0; int g2 = 0;
@@ -121,8 +135,8 @@ public class KNNModel {
 	
 	
 	/*
-	 * sorts an arraylist of pairs<double,KNNData> using the first value of the pair
-	 * insertion sort
+	 * Sorts an arraylist of pairs<double,KNNData> using the first value of the pair.
+	 * It's an insertion sort.
 	 */
 	public ArrayList<Pair<Double,KNNData>> sortByDistance(ArrayList<Pair<Double,KNNData>> distanceDataPoints) {
 		//ArrayList<Pair<Double,KNNData>> sortedList = new ArrayList<Pair<Double,KNNData>>();
@@ -138,12 +152,21 @@ public class KNNModel {
 		return distanceDataPoints;
 	}
 	
+	/* public void swap(index1,index2,list)
+	 * 		index1,index2 - int value representing an index value in a list
+	 *		list - an ArrayList of Pairs
+	 * Swaps the values at index1 and index2 in list. Solely used in the insertion sort above.
+	 */ 
 	public void swap(int index1, int index2, ArrayList<Pair<Double,KNNData>> list) {
 		Pair<Double,KNNData> temp = list.get(index2);
 		list.set(index2, list.get(index1));
 		list.set(index1, temp);
 	}
 	
+	/* public void printKNNList(list)
+	 * 		list - an ArrayList of KNNData objects
+	 * Prints out the index and the KNNData values for each element in the list
+	 */
 	public void printKNNList(ArrayList<KNNData> list) {
 		for (int i = 0; i < list.size(); i++) {
 			int p1 = list.get(i).getFirst();
@@ -153,7 +176,11 @@ public class KNNModel {
 		}
 		System.out.println();
 	}
-	
+
+	/* public void printPairList(list)
+	 * 		list - an ArrayList of Pair objects (first value is a double, second KNNData object)
+	 * Prints out the index, distance, and the KNNData values for each element in the list
+	 */
 	public void printPairList(ArrayList<Pair<Double,KNNData>> pairList) {
 		System.out.format("list size: %d \n",pairList.size());
 		for (int i = 0; i < pairList.size(); i++) {
