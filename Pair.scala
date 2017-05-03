@@ -1,6 +1,7 @@
-import java.io.Serializable
+package kNearestNeighbors
 
-import scala.beans.{BeanProperty, BooleanBeanProperty}
+import java.io.Serializable
+import scala.beans.BeanProperty
 
 class Pair[V, T](@BeanProperty var first: V, @BeanProperty var second: T)
-	extends Serializable
+    extends Serializable
