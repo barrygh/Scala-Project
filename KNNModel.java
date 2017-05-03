@@ -1,170 +1,109 @@
-/*
- * Author: Barry Huey
- * class KNNModel
- * Given two groups of KNNData values, classify which set that a KNNData test point(s)
- * belongs to determined by the k Nearest Neighbors learning model.
- */
+class KNNModel(private var groupOne: ArrayList[KNNData], private var groupTwo: ArrayList[KNNData]) {
 
-package kNearestNeighbors;
+	// For each test point, calculate the distance between it and all group data points.
+	// Store the (distance,group_data_point) pairs in an arraylist (there are only three test points,
+	// so only three lists will be made).
+	// Use the three nearest points (i.e. the three smallest distance values) and their classNum
+	// value to determine which group the point belongs to.
+	// For each test point, calculate the distance between it and all group data points.
+	// Store the (distance,group_data_point) pairs in an arraylist (there are only three test points,
+	// so only three lists will be made).
+	// Use the three nearest points (i.e. the three smallest distance values) and their classNum
+	// value to determine which group the point belongs to.
+	def classify(testData: ArrayList[KNNData]): ArrayList[KNNData] = {
 
-import java.util.ArrayList;
+		val allTestPoints: ArrayList[ArrayList[Pair[Double, KNNData]]] = new ArrayList[ArrayList[Pair[Double, KNNData]]]()
 
-public class KNNModel {
-	private ArrayList<KNNData> groupOne;
-	private ArrayList<KNNData> groupTwo;
-	
-	public KNNModel(ArrayList<KNNData> groupOne, ArrayList <KNNData> groupTwo) {
-		this.groupOne = groupOne;
-		this.groupTwo = groupTwo;
-	}
-	
-	public ArrayList<KNNData> classify (ArrayList<KNNData> testData) {
-		// For each test point, calculate the distance between it and all group data points.
-		// Store the (distance,group_data_point) pairs in an arraylist (there are only three test points,
-		// so only three lists will be made).
-		// Use the three nearest points (i.e. the three smallest distance values) and their classNum
-		// value to determine which group the point belongs to.
-		
-		ArrayList<ArrayList<Pair<Double,KNNData>>> allTestPoints = new ArrayList();
 		// For each test point...
-		for (KNNData testPoint : testData) {
-			ArrayList<Pair<Double,KNNData>> distanceAndDataPoint = new ArrayList();
+		for (testPoint <- testData) {
+			val distanceAndDataPoint: ArrayList[Pair[Double, KNNData]] =
+			new ArrayList[Pair[Double, KNNData]]()
 			// ...calculate the distance between it and all group points.
-			for (KNNData groupOnePoint : groupOne) {
-				double distance = testPoint.distance(groupOnePoint);
-				Pair<Double,KNNData> temp = new Pair<Double,KNNData>(distance,groupOnePoint);
-				distanceAndDataPoint.add(temp);
+			for (groupOnePoint <- groupOne) {
+			val distance: Double = testPoint.distance(groupOnePoint)
+ 			val temp: Pair[Double, KNNData] = new Pair[Double, KNNData](distance, groupOnePoint)
+			distanceAndDataPoint.add(temp)
+      			}
+			for (groupTwoPoint <- groupTwo) {
+				val distance: Double = testPoint.distance(groupTwoPoint)
+				val temp: Pair[Double, KNNData] =
+				new Pair[Double, KNNData](distance, groupTwoPoint)
+				distanceAndDataPoint.add(temp)
 			}
-			for (KNNData groupTwoPoint : groupTwo) {
-				double distance = testPoint.distance(groupTwoPoint);
-				Pair<Double,KNNData> temp = new Pair<Double,KNNData>(distance,groupTwoPoint);
-				distanceAndDataPoint.add(temp);
-			}
-			allTestPoints.add(distanceAndDataPoint);
-		}
-		
-		// Now sort each individual list in allTestPoints by distance and in ascending order
-		for (int i = 0; i < allTestPoints.size(); i++) {
-			int p1 = testData.get(i).getFirst();
-			int p2 = testData.get(i).getSecond();
-			int cn = testData.get(i).getClassNum();
+			allTestPoints.add(distanceAndDataPoint)
+    		}
 
-			System.out.format("Test Point: (%d, %d, %d) \n",p1,p2,cn);
-			ArrayList<Pair<Double,KNNData>> tempList = sortByDistance(allTestPoints.get(i));
-			allTestPoints.set(i, tempList);
-			printPairList(allTestPoints.get(i));
-		}
+		for (i <- 0 until allTestPoints.size) {
+			val p1: Int = testData.get(i).getFirst
+			val p2: Int = testData.get(i).getSecond
+			val cn: Int = testData.get(i).getClassNum
+			System.out.format("Test Point: (%d, %d, %d) \n", p1, p2, cn)
+			val tempList: ArrayList[Pair[Double, KNNData]] = sortByDistance(
+			allTestPoints.get(i))
+			allTestPoints.set(i, tempList)
+			printPairList(allTestPoints.get(i))
+    		}
 
 		// Finally, create list containing all testing points with their classNum set to the appropriate group
-		ArrayList<KNNData> sortedTests = new ArrayList<KNNData>();
-		sortedTests = extractResults(allTestPoints, testData);
-		return sortedTests;
-	}
+		var sortedTests: ArrayList[KNNData] = new ArrayList[KNNData]()
+		sortedTests = extractResults(allTestPoints, testData)
+		sortedTests
+  	}
+
 	
-	/*
-	 * Returns a list of the test points with their group number (third value) set accordingly
-	 */
-	public ArrayList<KNNData> extractResults(ArrayList<ArrayList<Pair<Double,KNNData>>> sortedList, ArrayList<KNNData> testData) {
-		ArrayList<KNNData> sortedTests = new ArrayList<KNNData>();
-		for (int i = 0; i < sortedList.size(); i++) {
-			KNNData testTemp = testData.get(i);
-			testTemp.setClassNum(majorityGroup(sortedList.get(i)));
-			sortedTests.add(testTemp);
+	// Returns a list of the test points with their group number (third value) set accordingly
+	def extractResults(sortedList: ArrayList[ArrayList[Pair[Double, KNNData]]], testData: ArrayList[KNNData]): ArrayList[KNNData] = {
+		val sortedTests: ArrayList[KNNData] = new ArrayList[KNNData]()
+		for (i <- 0 until sortedList.size) {
+			val testTemp: KNNData = testData.get(i)
+			testTemp.setClassNum(majorityGroup(sortedList.get(i)))
+			sortedTests.add(testTemp)
 		}
-		printKNNList(sortedTests);
-		return sortedTests;
+		printKNNList(sortedTests)
+		sortedTests
 	}
-	
-	/*
-	 * Returns an int that represents the group number to give a test point after
-	 * considering the data.
-	 */
-	private int majorityGroup (ArrayList<Pair<Double,KNNData>> sortedPairList) {
-		int k = 0; int g1 = 0; int g2 = 0;
-		for (int i = 0; i < sortedPairList.size(); i++) {
-			// Either test until all data is considered OR stop after 3 tests
-			if (k >= 3) break;
-			
-			double dist = sortedPairList.get(i).getFirst();
-			int classnum = sortedPairList.get(i).getSecond().getClassNum();
-			
-			// If there is a value after i...
-			if (i+1 < sortedPairList.size()) {
-				double distNext = sortedPairList.get(i+1).getFirst();
-				int classnumNext = sortedPairList.get(i+1).getSecond().getClassNum();
-				// ... and if the groups are different and the distances the same...
-				if ( dist == distNext && classnum != classnumNext) {
-					// ...skip forward.
-					k = k + 2;
-					i = i + 1;
-				}
-				// If it isn't the case that the groups are different and the distances the same...
-				else {
-					// ...increment the group counters accordingly
-					k = k + 1;
-					if (classnum == 1) g1++;
-					else g2++;
-				}
-			}
-			// If there isn't a value after i and k is still less than or equal to 3...
-			else {
-				k = k + 1;
-				if (classnum == 1) g1++;
-				else g2++;
-			}
+
+	def sortByDistance(distanceDataPoints: ArrayList[Pair[Double, KNNData]]): ArrayList[Pair[Double, KNNData]] = {
+		for (i <- 1 until distanceDataPoints.size) {
+			var k: Int = i
+			while (k >= 1) {
+				val kDistance: Double = distanceDataPoints.get(k).getFirst
+				val prevKDistance: Double = distanceDataPoints.get(k - 1).getFirst
+        			if (kDistance < prevKDistance) {
+          				swap(k - 1, k, distanceDataPoints)
+        			}
+        		{ k -= 1; k + 1 }
+     		}
+    	}
+    	distanceDataPoints
+ 	}
+
+	def swap(index1: Int, index2: Int, list: ArrayList[Pair[Double, KNNData]]): Unit = {
+		val temp: Pair[Double, KNNData] = list.get(index2)
+		list.set(index2, list.get(index1))
+		list.set(index1, temp)
+	}
+
+	def printKNNList(list: ArrayList[KNNData]): Unit = {
+		for (i <- 0 until list.size) {
+			val p1: Int = list.get(i).getFirst
+			val p2: Int = list.get(i).getSecond
+			val cn: Int = list.get(i).getClassNum
+			System.out.format("i: %d | KNN (%d, %d, %d) \n", i, p1, p2, cn)
 		}
-		// Return group number 
-		if (g1 > g2) return 1;
-		else if (g1 < g2) return 2;
-		else return 0;
+		println()
 	}
 	
-	
-	/*
-	 * sorts an arraylist of pairs<double,KNNData> using the first value of the pair
-	 * insertion sort
-	 */
-	public ArrayList<Pair<Double,KNNData>> sortByDistance(ArrayList<Pair<Double,KNNData>> distanceDataPoints) {
-		//ArrayList<Pair<Double,KNNData>> sortedList = new ArrayList<Pair<Double,KNNData>>();
-			for (int i = 1; i < distanceDataPoints.size(); i++) {
-				for (int k = i; k >= 1; k--) {
-					double kDistance = distanceDataPoints.get(k).getFirst();
-					double prevKDistance = distanceDataPoints.get(k-1).getFirst();
-					if (kDistance < prevKDistance) {
-						swap(k-1,k,distanceDataPoints);
-					}
-				}
-			}
-		return distanceDataPoints;
-	}
-	
-	public void swap(int index1, int index2, ArrayList<Pair<Double,KNNData>> list) {
-		Pair<Double,KNNData> temp = list.get(index2);
-		list.set(index2, list.get(index1));
-		list.set(index1, temp);
-	}
-	
-	public void printKNNList(ArrayList<KNNData> list) {
-		for (int i = 0; i < list.size(); i++) {
-			int p1 = list.get(i).getFirst();
-			int p2 = list.get(i).getSecond();
-			int cn = list.get(i).getClassNum();
-			System.out.format("i: %d | KNN (%d, %d, %d) \n", i,p1,p2,cn);
+	def printPairList(pairList: ArrayList[Pair[Double, KNNData]]): Unit = {
+		System.out.format("list size: %d \n", pairList.size)
+		for (i <- 0 until pairList.size) {
+			val distance: Double = pairList.get(i).getFirst
+			val p1: Int = pairList.get(i).getSecond.getFirst
+			val p2: Int = pairList.get(i).getSecond.getSecond
+			val cN: Int = pairList.get(i).getSecond.getClassNum
+			System.out.format("i: %d | distance: %f | KNNData: (%d,%d,%d) \n", i, distance, p1, p2, cN)
 		}
-		System.out.println();
+		println("_______")
 	}
-	
-	public void printPairList(ArrayList<Pair<Double,KNNData>> pairList) {
-		System.out.format("list size: %d \n",pairList.size());
-		for (int i = 0; i < pairList.size(); i++) {
-			double distance = pairList.get(i).getFirst();
-			int p1 = pairList.get(i).getSecond().getFirst();
-			int p2 = pairList.get(i).getSecond().getSecond();
-			int cN = pairList.get(i).getSecond().getClassNum();
-			System.out.format("i: %d | distance: %f | KNNData: (%d,%d,%d) \n", i,distance,p1,p2,cN); 
-		}
-		System.out.println("_______");
-	}
-	
-	
 }
+
